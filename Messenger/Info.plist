@@ -56,5 +56,9 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>카메라에 접근하도록 허용버튼을 눌러주세요</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>앨범에 접근하도록 허용버튼을 눌러주세요.</string>
 </dict>
 </plist>
