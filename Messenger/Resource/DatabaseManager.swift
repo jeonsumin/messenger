@@ -27,6 +27,10 @@ final class DatabaseManager {
 extension DatabaseManager {
     
     public func selectEmail(with email : String , completion: @escaping((Bool) -> Void)) {
+        
+        var safeEmail = email.replacingOccurrences(of: ".", with: "-")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+        
         database.child(email).observeSingleEvent(of: .value) { (snapshot) in
             guard snapshot.value as? String != nil else{
                 completion(false)
@@ -40,7 +44,7 @@ extension DatabaseManager {
     
     //Inserts new User
     public func insertUser(with user: ChatAppUser){
-        database.child(user.emailAddress).setValue([
+        database.child(user.safeEmail).setValue([
             "first_name" : user.firstName,
             "last_name"  : user.lastname
         ])
@@ -52,5 +56,13 @@ struct ChatAppUser {
     let firstName       : String
     let lastname        : String
     let emailAddress    : String
+    
+    
+    //TODO:- Part5. 특수문자때문에 crash나는 문제 uid로 대체 한 후 Part6.facebook Login 보기 
+    var safeEmail: String {
+        var safeEmail = emailAddress.replacingOccurrences(of: ".", with: "-")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+        return safeEmail
+    }
     // let profilePic  : String
 }
