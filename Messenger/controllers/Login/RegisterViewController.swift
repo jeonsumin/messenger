@@ -21,12 +21,12 @@ class RegisterViewController: UIViewController {
     //logo
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "person")
+        imageView.image = UIImage(systemName: "person.circle")
         imageView.tintColor = .gray
         imageView.contentMode = .scaleAspectFit
         imageView.layer.masksToBounds = true
-        imageView.layer.borderColor = UIColor.lightGray.cgColor
-        imageView.layer.borderWidth = 2
+        //imageView.layer.borderColor = UIColor.lightGray.cgColor
+        //imageView.layer.borderWidth = 2
         return imageView
     }()
     
@@ -196,21 +196,40 @@ class RegisterViewController: UIViewController {
                 alertUserLoginError()
                 return
         }
+        
         // Friebase log In
         
-        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { (authRes, error) in
-            guard let result = authRes, error == nil else{
-                print("Error cureating user")
+        DatabaseManager.shared.selectEmail(with: email) { [weak self]exists in
+            
+            guard let strongSelf = self else {
                 return
             }
-            let user = result.user
-                print("Created user: \(user)")
             
+            guard !exists else{
+                //useralready exists
+                strongSelf.alertUserLoginError(message: "Looks Like a user account for that email address already exists. ")
+                return
+            }
+            
+            FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { authRes, error in
+                guard authRes != nil, error == nil else{
+                    print("Error cureating user")
+                    return
+                }
+                //let user = result.user
+                //    print("Created user: \(user)")
+                
+                DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName,
+                                                                    lastname: lastName,
+                                                                    emailAddress: email))
+                
+                strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+            }
         }
     }
     
-    func alertUserLoginError(){
-        let alert = UIAlertController(title: "알림", message: "빈칸이 있을 수 없습니다. ", preferredStyle: .alert)
+    func alertUserLoginError(message : String = "로그인을 해주세요."){
+        let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
         present(alert, animated: true)
     }
