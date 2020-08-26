@@ -216,13 +216,15 @@ class RegisterViewController: UIViewController {
                     print("Error cureating user")
                     return
                 }
-                //let user = result.user
-                //    print("Created user: \(user)")
+                
+    
+//                let uid = authRes?.user.uid
+//                DatabaseManager.shared.insertbasicUser(with: uid!, firstName: firstName, lastName: lastName)
                 
                 DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName,
                                                                     lastname: lastName,
                                                                     emailAddress: email))
-                
+
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             }
         }

@@ -16,7 +16,7 @@ final class DatabaseManager {
     private let database = Database.database().reference()
     
     public func test(){
-        database.child("foo").setValue(["something": true])
+        database.child("한글테스트").setValue(["something": "한글한글"])
     }
     
     
@@ -31,7 +31,7 @@ extension DatabaseManager {
         var safeEmail = email.replacingOccurrences(of: ".", with: "-")
         safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
         
-        database.child(email).observeSingleEvent(of: .value) { (snapshot) in
+        database.child(safeEmail).observeSingleEvent(of: .value) { (snapshot) in
             guard snapshot.value as? String != nil else{
                 completion(false)
                 return
@@ -50,6 +50,11 @@ extension DatabaseManager {
         ])
     }
     
+    //Inserts basic new User
+    public func insertbasicUser(with user: String, firstName :String, lastName: String){
+        database.child(user).setValue(["first_name":firstName,
+                                       "last_name" : lastName ])
+    }
 }
 
 struct ChatAppUser {
