@@ -22,6 +22,7 @@
 		DE05205524EEC1D900AAD92B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE05205424EEC1D900AAD92B /* ProfileViewController.swift */; };
 		DE667F0B24F2113B00003847 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE667F0A24F2113B00003847 /* DatabaseManager.swift */; };
 		DE6B19AB24EECA43004F21FC /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE6B19AA24EECA43004F21FC /* Extensions.swift */; };
+		DEC7C4E824FAC02400E4F801 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC7C4E724FAC02400E4F801 /* ChatViewController.swift */; };
 		DECE2CB124F204D100635F39 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DECE2CB024F204D100635F39 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -45,6 +46,7 @@
 		DE05205424EEC1D900AAD92B /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		DE667F0A24F2113B00003847 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		DE6B19AA24EECA43004F21FC /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		DEC7C4E724FAC02400E4F801 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		DECE2CB024F204D100635F39 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -118,6 +120,7 @@
 				DE05205024EEC19800AAD92B /* VideoPlayerViewController.swift */,
 				DE05205224EEC1BE00AAD92B /* NewConversationViewController.swift */,
 				DE05205424EEC1D900AAD92B /* ProfileViewController.swift */,
+				DEC7C4E724FAC02400E4F801 /* ChatViewController.swift */,
 			);
 			path = controllers;
 			sourceTree = "<group>";
@@ -318,6 +321,7 @@
 				DE05203124EEBFF300AAD92B /* AppDelegate.swift in Sources */,
 				DE05205524EEC1D900AAD92B /* ProfileViewController.swift in Sources */,
 				DE05203324EEBFF300AAD92B /* SceneDelegate.swift in Sources */,
+				DEC7C4E824FAC02400E4F801 /* ChatViewController.swift in Sources */,
 				DE05204F24EEC18200AAD92B /* PhotoViewerViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

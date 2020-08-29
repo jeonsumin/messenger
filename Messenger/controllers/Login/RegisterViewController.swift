@@ -9,9 +9,12 @@
 
 import UIKit
 import FirebaseAuth
+import JGProgressHUD
 
 class RegisterViewController: UIViewController {
-    
+
+    private let spinner = JGProgressHUD(style: .dark)
+
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.clipsToBounds = true
@@ -196,6 +199,8 @@ class RegisterViewController: UIViewController {
                 return
         }
         
+        
+        spinner.show(in: view)
         // Friebase log In
         
         DatabaseManager.shared.selectEmail(with: email) { [weak self]exists in
@@ -204,6 +209,10 @@ class RegisterViewController: UIViewController {
                 return
             }
             
+            DispatchQueue.main.async {
+                strongSelf.spinner.dismiss()
+
+            }
             guard !exists else{
                 //useralready exists
                 strongSelf.alertUserLoginError(message: "Looks Like a user account for that email address already exists. ")
