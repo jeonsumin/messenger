@@ -26,12 +26,9 @@ final class DatabaseManager {
 
 extension DatabaseManager {
     
-    public func selectEmail(with email : String , completion: @escaping((Bool) -> Void)) {
+    public func selectEmail(with uid : String , completion: @escaping((Bool) -> Void)) {
         
-        var safeEmail = email.replacingOccurrences(of: ".", with: "-")
-        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
-        
-        database.child(safeEmail).observeSingleEvent(of: .value) { (snapshot) in
+        database.child(uid).observeSingleEvent(of: .value) { (snapshot) in
             guard snapshot.value as? String != nil else{
                 completion(false)
                 return
@@ -44,30 +41,20 @@ extension DatabaseManager {
     
     //Inserts new User
     public func insertUser(with user: ChatAppUser){
-        database.child(user.safeEmail).setValue([
-            "first_name" : user.firstName,
-            "last_name"  : user.lastname
+        database.child(user.uid).setValue([
+            "name" : user.name
         ])
     }
     
     //Inserts basic new User
-    public func insertbasicUser(with user: String, firstName :String, lastName: String){
-        database.child(user).setValue(["first_name":firstName,
-                                       "last_name" : lastName ])
+    public func insertbasicUser(with user: String, Name: String){
+        database.child(user).setValue(["name": Name])
     }
 }
 
 struct ChatAppUser {
-    let firstName       : String
-    let lastname        : String
-    let emailAddress    : String
+    let uid             : String
+    let name        : String
     
-    
-    //TODO:- Part5. 특수문자때문에 crash나는 문제 uid로 대체 한 후 Part6.facebook Login 보기 
-    var safeEmail: String {
-        var safeEmail = emailAddress.replacingOccurrences(of: ".", with: "-")
-        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
-        return safeEmail
-    }
     // let profilePic  : String
 }

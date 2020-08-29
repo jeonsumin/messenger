@@ -10,6 +10,7 @@
 import UIKit
 import FirebaseAuth
 import FBSDKLoginKit
+import GoogleSignIn
 
 class LoginViewController: UIViewController {
     
@@ -72,13 +73,29 @@ class LoginViewController: UIViewController {
     }()
     
     private let btnFBlogin : FBLoginButton = {
-       let button = FBLoginButton()
-        button.permissions = ["email, public_profile"]
+        let button = FBLoginButton()
+        button.permissions = ["email,public_profile"]
         return button
     }()
     
+    private let btnGoogleLogin = GIDSignInButton()
+    
+    
+    private var loginObserver : NSObjectProtocol?
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        loginObserver = NotificationCenter.default.addObserver(forName: Notification.Name.didLogInNotification ,object: nil,queue: .main, using: {[weak self] _ in
+            guard let strongSelf = self else{
+                return
+            }
+            strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+        })
+        
+        GIDSignIn.sharedInstance()?.presentingViewController = self
         title = "log In"
         self.view.backgroundColor = .white
         
@@ -103,6 +120,13 @@ class LoginViewController: UIViewController {
         self.scrollView.addSubview(passwordField)
         self.scrollView.addSubview(loginButton)
         self.scrollView.addSubview(btnFBlogin)
+        self.scrollView.addSubview(btnGoogleLogin)
+    }
+    
+    deinit {
+        if let observer = loginObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -123,15 +147,20 @@ class LoginViewController: UIViewController {
                                      width: scrollView.width-60,
                                      height: 52)
         loginButton.frame = CGRect(x: 30,
-                                     y: passwordField.bottom+10,
-                                     width: scrollView.width-60,
-                                     height: 52)
-         
-        btnFBlogin.frame = CGRect(x: 30,
-                                   y: loginButton.bottom+10,
+                                   y: passwordField.bottom+10,
                                    width: scrollView.width-60,
                                    height: 52)
-        btnFBlogin.frame.origin.y = loginButton.bottom+20
+        
+        btnFBlogin.frame = CGRect(x: 30,
+                                  y: loginButton.bottom+10,
+                                  width: scrollView.width-60,
+                                  height: 52)
+        
+        btnGoogleLogin.frame = CGRect(x: 30,
+                                      y: btnFBlogin.bottom+10,
+                                      width: scrollView.width-60,
+                                      height: 52)
+        
     }
     
     @objc private func loginButtonTapped(){
@@ -144,8 +173,9 @@ class LoginViewController: UIViewController {
             alertUserLoginError()
             return
         }
-        // Friebase log In
-        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { [weak self ]data, error in
+        
+        //MARK:- Friebase log In
+        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password, completion: { [weak self ]data, error in
             
             guard let strongSelf = self else {
                 return
@@ -157,7 +187,7 @@ class LoginViewController: UIViewController {
             let user = result.user
             print("Success Loggin In User: \(user)")
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
-        }
+        })
     }
     
     func alertUserLoginError(){
@@ -205,34 +235,32 @@ extension LoginViewController: LoginButtonDelegate {
                                                          httpMethod: .get)
         
         facebookRequest.start(completionHandler: {_, result, error in
-            guard let result = result as? [String: Any],
-                error == nil else {
+            guard let result = result as? [String: Any], error == nil else {
                 print("faild to make facebook graph request")
                 return
             }
             print("\(result)")
-
-            guard let userName = result["name"] as? String,
-                let email = result["email"] as? String else{
-                    print("faild email and name from fb result")
-                    return
-            }
-            let nameComponents = userName.components(separatedBy: " ")
-            guard nameComponents.count == 2 else{
+            
+            //            한글은 firstName, lastName로 짜르지 못함 ...
+            //            guard let userName = result["name"] as? String,
+            //                let email = result["email"] as? String else{
+            //                    print("faild email and name from fb result")
+            //                    return
+            //            }
+            //            let nameComponents = userName.components(separatedBy: " ")
+            //            guard nameComponents.count == 2 else{
+            //                return
+            //            }
+            //
+            //            let firstName = nameComponents[0]
+            //            let lastName = nameComponents[1]
+            
+            
+            guard let id = result["id"] as? String, let name = result["name"] as? String else {
                 return
             }
+            DatabaseManager.shared.insertbasicUser(with: id, Name: name)
             
-            let firstName = nameComponents[0]
-            let lastName = nameComponents[1]
-            
-            DatabaseManager.shared.selectEmail(with: email, completion: {exists in
-                if !exists {
-                    DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName,
-                                                                        lastname: lastName,
-                                                                        emailAddress: email))
-                }
-            }
-            )
             
             let credential = FacebookAuthProvider.credential(withAccessToken: token)
             

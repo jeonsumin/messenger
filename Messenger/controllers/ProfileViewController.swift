@@ -8,6 +8,9 @@
 
 import UIKit
 import FirebaseAuth
+import FBSDKLoginKit
+import GoogleSignIn
+
 class ProfileViewController: UIViewController {
 
     @IBOutlet weak var  tableView: UITableView!
@@ -43,9 +46,19 @@ extension ProfileViewController: UITableViewDelegate,UITableViewDataSource{
                                        preferredStyle: .actionSheet)
         
         actionSheet.addAction(UIAlertAction(title: "로그아웃",
-                                      style: .destructive, handler: {[weak self] _ in
+                                      style: .destructive,
+                                      handler: {[weak self] _ in
                                         
-                                        guard let strongSelf = self else {return}
+                                        guard let strongSelf = self else {
+                                            return
+                                        }
+                                        
+                                        //Log Out facebook
+                                        FBSDKLoginKit.LoginManager().logOut()
+                                        
+                                        //google log out
+                                        GIDSignIn.sharedInstance()?.signOut()
+                                        
                                         do{
                                             try FirebaseAuth.Auth.auth().signOut()
                                             
@@ -53,6 +66,7 @@ extension ProfileViewController: UITableViewDelegate,UITableViewDataSource{
                                             let nav = UINavigationController(rootViewController: vc)
                                             nav.modalPresentationStyle = .fullScreen
                                             strongSelf.present(nav, animated: true)
+                                            
                                         }catch{
                                             print("Faild log out")
                                         }

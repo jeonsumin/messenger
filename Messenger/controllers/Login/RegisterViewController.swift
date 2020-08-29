@@ -45,22 +45,22 @@ class RegisterViewController: UIViewController {
         field.backgroundColor = .white
         return field
     }()
-    
-    private let lastNameField: UITextField = {
-        let field = UITextField()
-        field.autocapitalizationType = .none    // 자동 보정 유형
-        field.autocorrectionType = .no          // 자동 보정 유형
-        field.returnKeyType = .continue         // 리턴키
-        field.layer.cornerRadius = 12           // 모서리 둥굴게
-        field.layer.borderWidth = 1             // 태두리 픽셀
-        field.layer.borderColor = UIColor.lightGray.cgColor
-        field.placeholder = "last Name..."
-        
-        field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
-        field.leftViewMode = .always
-        field.backgroundColor = .white
-        return field
-    }()
+//
+//    private let lastNameField: UITextField = {
+//        let field = UITextField()
+//        field.autocapitalizationType = .none    // 자동 보정 유형
+//        field.autocorrectionType = .no          // 자동 보정 유형
+//        field.returnKeyType = .continue         // 리턴키
+//        field.layer.cornerRadius = 12           // 모서리 둥굴게
+//        field.layer.borderWidth = 1             // 태두리 픽셀
+//        field.layer.borderColor = UIColor.lightGray.cgColor
+//        field.placeholder = "last Name..."
+//
+//        field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
+//        field.leftViewMode = .always
+//        field.backgroundColor = .white
+//        return field
+//    }()
     
     private let emailField: UITextField = {
         let field = UITextField()
@@ -133,7 +133,7 @@ class RegisterViewController: UIViewController {
         self.scrollView.addSubview(passwordField)
         self.scrollView.addSubview(RegisterButton)
         self.scrollView.addSubview(firstNameField)
-        self.scrollView.addSubview(lastNameField)
+//        self.scrollView.addSubview(lastNameField)
         
         imageView.isUserInteractionEnabled = true
         scrollView.isUserInteractionEnabled = true
@@ -161,12 +161,12 @@ class RegisterViewController: UIViewController {
                                       y: imageView.bottom+10,
                                       width: scrollView.width-60,
                                       height: 52)
-        lastNameField.frame = CGRect(x: 30,
-                                     y: firstNameField.bottom+10,
-                                     width: scrollView.width-60,
-                                     height: 52)
+//        lastNameField.frame = CGRect(x: 30,
+//                                     y: firstNameField.bottom+10,
+//                                     width: scrollView.width-60,
+//                                     height: 52)
         emailField.frame = CGRect(x: 30,
-                                  y: lastNameField.bottom+10,
+                                  y: firstNameField.bottom+10,
                                   width: scrollView.width-60,
                                   height: 52)
         passwordField.frame = CGRect(x: 30,
@@ -184,14 +184,13 @@ class RegisterViewController: UIViewController {
         emailField.resignFirstResponder()
         passwordField.resignFirstResponder()
         
-        guard let firstName = firstNameField.text,
-            let lastName = lastNameField.text,
+        guard let Name = firstNameField.text,
             let email = emailField.text,
             let password = passwordField.text,
             !email.isEmpty,
             !password.isEmpty,
-            !firstName.isEmpty,
-            !lastName.isEmpty,
+            !Name.isEmpty,
+//            !lastName.isEmpty,
             password.count >= 6 else{
                 alertUserLoginError()
                 return
@@ -218,12 +217,10 @@ class RegisterViewController: UIViewController {
                 }
                 
     
-//                let uid = authRes?.user.uid
+                let uid = authRes?.user.uid
 //                DatabaseManager.shared.insertbasicUser(with: uid!, firstName: firstName, lastName: lastName)
                 
-                DatabaseManager.shared.insertUser(with: ChatAppUser(firstName: firstName,
-                                                                    lastname: lastName,
-                                                                    emailAddress: email))
+                DatabaseManager.shared.insertUser(with: ChatAppUser(uid: uid!, name: Name))
 
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             }
