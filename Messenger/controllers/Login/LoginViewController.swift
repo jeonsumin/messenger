@@ -193,6 +193,9 @@ class LoginViewController: UIViewController {
                 return
             }
             let user = result.user
+            
+            UserDefaults.standard.set(email, forKey: "email")
+            
             print("Success Loggin In User: \(user)")
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
         })
@@ -224,7 +227,7 @@ extension LoginViewController: UITextFieldDelegate{
         return true
     }
 }
-
+//MARK:- Facebook Login
 extension LoginViewController: LoginButtonDelegate {
     func loginButtonDidLogOut(_ loginButton: FBLoginButton) {
         
@@ -247,23 +250,6 @@ extension LoginViewController: LoginButtonDelegate {
                 print("faild to make facebook graph request")
                 return
             }
-            print("\(result)")
-            
-            //            한글은 firstName, lastName로 짜르지 못함 ...
-            //            guard let userName = result["name"] as? String,
-            //                let email = result["email"] as? String else{
-            //                    print("faild email and name from fb result")
-            //                    return
-            //            }
-            //            let nameComponents = userName.components(separatedBy: " ")
-            //            guard nameComponents.count == 2 else{
-            //                return
-            //            }
-            //
-            //            let firstName = nameComponents[0]
-            //            let lastName = nameComponents[1]
-            
-            print(result)
             
             guard let email = result["email"] as? String,
                 let name = result["name"] as? String,
@@ -272,7 +258,7 @@ extension LoginViewController: LoginButtonDelegate {
                 let pictureUrl = data["url"] as? String else {
                     return
             }
-            //            DatabaseManager.shared.insertbasicUser(with: id, Name: name)
+            
             DatabaseManager.shared.selectEmail(with: email, completion: {exists in
                 if !exists {
                     let chatUser = ChatAppUser(emailAddrss: email,

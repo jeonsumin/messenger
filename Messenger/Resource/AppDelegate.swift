@@ -54,6 +54,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             let email = user.profile.email else {
             return
         }
+
+        UserDefaults.standard.set(email, forKey: "email")
         
         DatabaseManager.shared.selectEmail(with: email, completion: { exists in
             if !exists {

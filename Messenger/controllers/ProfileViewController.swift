@@ -22,7 +22,61 @@ class ProfileViewController: UIViewController {
                            forCellReuseIdentifier: "cell")
         tableView.delegate = self
         tableView.dataSource = self
-        // Do any additional setup after loading the view.
+        
+        tableView.tableHeaderView = createTableHeader()
+    }
+    func createTableHeader() -> UIView? {
+        
+        guard let email = UserDefaults.standard.value(forKey: "email") as? String else {
+            return nil
+        }
+        let safeEmail = DatabaseManager.safeEamil(emailAddrss: email)
+        let filename = safeEmail + "_profile_picture.png"
+        
+        let path = "images/" + filename
+        
+        let headerview = UIView(frame: CGRect(x: 0,
+                                        y: 0,
+                                        width: self.view.width,
+                                        height: 300))
+        
+        headerview.backgroundColor = .link
+        
+        let imageView = UIImageView(frame: CGRect(x: (headerview.width-150) / 2,
+                                                  y: 75,
+                                                  width: 150,
+                                                  height: 150))
+        
+        
+        imageView.contentMode = .scaleAspectFit
+        imageView.backgroundColor = .white
+        imageView.layer.borderColor = UIColor.white.cgColor
+        imageView.layer.borderWidth = 3
+        imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = imageView.width/2
+        
+        headerview.addSubview(imageView)
+        
+        StorageManager.shard.downloadURL(for: path, completion: {[weak self]result in
+            switch result {
+            case .success(let url):
+                self?.downloadImage(imageView: imageView, url: url)
+            case .failure(let error):
+                print("Faild to get Download url: \(error)")
+            }
+        })
+        return headerview
+    }
+    func downloadImage(imageView: UIImageView, url: URL){
+        URLSession.shared.dataTask(with: url, completionHandler: {data,_,error in
+            guard let data = data, error == nil else {
+                return
+            }
+            DispatchQueue.main.async {
+                let image = UIImage(data: data)
+                imageView.image = image
+            }
+            }).resume()
     }
 }
 
