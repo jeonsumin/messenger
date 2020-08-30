@@ -199,7 +199,6 @@ class RegisterViewController: UIViewController {
                 return
         }
         
-        
         spinner.show(in: view)
         // Friebase log In
         
@@ -226,10 +225,28 @@ class RegisterViewController: UIViewController {
                 }
                 
     
-                let uid = authRes?.user.uid
+//                let uid = authRes?.user.uid
 //                DatabaseManager.shared.insertbasicUser(with: uid!, firstName: firstName, lastName: lastName)
-                
-                DatabaseManager.shared.insertUser(with: ChatAppUser(uid: uid!, name: Name))
+                let chatuser = ChatAppUser(emailAddrss: email, name: Name)
+                DatabaseManager.shared.insertUser(with:chatuser, comletion: {success in
+                    if success {
+                        //upload Image
+                        guard let image = strongSelf.imageView.image,
+                            let data = image.pngData() else {
+                            return
+                        }
+                        let filename = chatuser.profilePictureFileName
+                        StorageManager.shard.uploadProfilePicture(with: data, fileName: filename, completion: {res in
+                            switch res {
+                            case .success(let downloadUrl):
+                                UserDefaults.standard.set(downloadUrl, forKey: "profile_picture_url")
+                                print(downloadUrl)
+                            case .failure(let error):
+                                print("Storage manager error: \(error)")
+                            }
+                        })
+                    }
+                })
 
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             }

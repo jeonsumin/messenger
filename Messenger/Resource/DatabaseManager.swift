@@ -26,9 +26,12 @@ final class DatabaseManager {
 
 extension DatabaseManager {
     
-    public func selectEmail(with uid : String , completion: @escaping((Bool) -> Void)) {
+    public func selectEmail(with email : String , completion: @escaping((Bool) -> Void)) {
         
-        database.child(uid).observeSingleEvent(of: .value) { (snapshot) in
+        var safeEmail = email.replacingOccurrences(of: ".", with: "-")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+            
+        database.child(safeEmail).observeSingleEvent(of: .value) { (snapshot) in
             guard snapshot.value as? String != nil else{
                 completion(false)
                 return
@@ -40,21 +43,32 @@ extension DatabaseManager {
     }
     
     //Inserts new User
-    public func insertUser(with user: ChatAppUser){
-        database.child(user.uid).setValue([
+    public func insertUser(with user: ChatAppUser, comletion: @escaping (Bool) -> Void ){
+        database.child(user.safeEmail).setValue([
             "name" : user.name
-        ])
+            ], withCompletionBlock: { error,_  in
+                guard error == nil else{
+                    print("Failed to write to databas")
+                    comletion(false)
+                    return
+                }
+                comletion(true)
+                
+        })
     }
     
-    //Inserts basic new User
-    public func insertbasicUser(with user: String, Name: String){
-        database.child(user).setValue(["name": Name])
-    }
 }
 
 struct ChatAppUser {
-    let uid             : String
+    let emailAddrss : String
     let name        : String
-    
-    // let profilePic  : String
+    var safeEmail   : String {
+        var safeEmail = emailAddrss.replacingOccurrences(of: ".", with: "-")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+        return safeEmail
+    }
+    var profilePictureFileName  : String {
+        //afraz9-gmail-com-profile-picture.png
+        return "\(safeEmail)_profile_picture.png"
+    }
 }
