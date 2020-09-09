@@ -23,13 +23,13 @@ struct LatestMessage {
     let isRead: Bool
 }
 class ConversationsViewController: UIViewController {
-
+    
     private let spinner = JGProgressHUD(style: .dark)
     
     private var conversations = [Conversation]()
     
     private let tableView: UITableView = {
-       let table = UITableView()
+        let table = UITableView()
         table.isHidden = true
         table.register(ConversationTableViewCell.self,
                        forCellReuseIdentifier: ConversationTableViewCell.identifier)
@@ -37,18 +37,18 @@ class ConversationsViewController: UIViewController {
     }()
     
     private let noConversationLable : UILabel = {
-       let lb = UILabel()
+        let lb = UILabel()
         lb.text = "메세지가 없습니다."
         lb.textAlignment = .center
         lb.textColor = .gray
         lb.font = .systemFont(ofSize: 21, weight: .medium)
         lb.isHidden = true
-
+        
         return lb
     }()
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(didtapComposeBtn))
         
         view.addSubview(tableView)
@@ -94,10 +94,10 @@ class ConversationsViewController: UIViewController {
         present(nav, animated: true, completion: nil)
     }
     
-    private func createnewConversition(result: [String : String]){
-        guard let name = result["name"], let email = result["email"] else{
-            return
-        }
+    private func createnewConversition(result:SearchResul){
+        let name = result.name
+        let email = result.email
+        
         let vc = ChatViewController(with: email, id: nil)
         vc.isNewConversation = true
         vc.title = name
@@ -110,7 +110,7 @@ class ConversationsViewController: UIViewController {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         validateAuth()
@@ -154,7 +154,7 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
         
         let vc = ChatViewController(with: model.otheruserEmail, id: model.id)
         vc.title = model.name
-
+        
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
     }

@@ -11,13 +11,13 @@ import JGProgressHUD
 
 class NewConversationViewController: UIViewController {
     
-    public var completion:(([String : String]) -> (Void))?
+    public var completion:((SearchResul) -> (Void))?
     
     private let spinner = JGProgressHUD(style: .dark) //로딩 뷰
     
     private var users = [[String:String]]()
     
-    private var results = [[String:String]]() // search Results
+    private var results = [SearchResul]() // search Results
     
     private var hasFetched = false
     
@@ -28,14 +28,14 @@ class NewConversationViewController: UIViewController {
     }()
     
     private let tableView: UITableView = {
-       let table = UITableView()
+        let table = UITableView()
         table.isHidden = true
-        table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        table.register(UITableViewCell.self, forCellReuseIdentifier: NewConversationCell.identifier)
         return table
     }()
     
     private let noResultsLabel: UILabel = {
-       let lb = UILabel()
+        let lb = UILabel()
         lb.isHidden = true
         lb.text = "검색결과가 없습니다."
         lb.textAlignment = .center
@@ -60,7 +60,7 @@ class NewConversationViewController: UIViewController {
                                                             style: .done,
                                                             target: self,
                                                             action: #selector(dismissSelf))
-
+        
         searchBar.becomeFirstResponder()
     }
     
@@ -83,8 +83,8 @@ extension NewConversationViewController: UITableViewDelegate, UITableViewDataSou
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell",for: indexPath)
-        cell.textLabel?.text = results[indexPath.row]["name"]
+        let cell = tableView.dequeueReusableCell(withIdentifier: NewConversationCell.identifier ,for: indexPath)
+        cell.textLabel?.text = results[indexPath.row].name
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -116,10 +116,10 @@ extension NewConversationViewController: UISearchBarDelegate{
     func searchUsers(query: String ){
         // check if array has firebase results
         if hasFetched{
-        // if it does : filter
+            // if it does : filter
             filterusers(with: query)
         }else{
-        // if no, fetch then filter
+            // if no, fetch then filter
             DatabaseManager.shared.getAllusers(completion: { [weak self] result in
                 switch result {
                 case .success(let userCollection):
@@ -135,19 +135,35 @@ extension NewConversationViewController: UISearchBarDelegate{
         //update the UI: einte
     }
     func filterusers(with term: String ){
-        guard hasFetched else {
+        guard let currentUserEmail = UserDefaults.standard.value(forKey: "email") as? String, hasFetched else {
             return
         }
+        
+        let safeEmail = DatabaseManager.safeEamil(emailAddrss: currentUserEmail)
+        
         self.spinner.dismiss()
         
-        let results: [[String:String]]  = self.users.filter({
+        let results: [SearchResul]  = self.users.filter({
+            
+            guard let email = $0["email"],email != safeEmail else{
+                return false
+            }
+            
             guard let name = $0["name"]?.lowercased() else{
                 return false
             }
             
             return name.hasPrefix(term.lowercased())
+        }).compactMap({
+            guard let email = $0["email"],
+                let name = $0["name"] else{
+                    return nil
+            }
+            return SearchResul(name: name, email: email)
         })
+        
         self.results = results
+        
         updateUI()
     }
     func updateUI(){
@@ -160,4 +176,10 @@ extension NewConversationViewController: UISearchBarDelegate{
             self.tableView.reloadData()
         }
     }
+}
+
+
+struct SearchResul {
+    let name : String
+    let email : String
 }
