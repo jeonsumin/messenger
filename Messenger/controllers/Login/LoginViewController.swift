@@ -171,9 +171,12 @@ class LoginViewController: UIViewController {
         passwordField.resignFirstResponder()
         
         
-        guard let email = emailField.text, let password = passwordField.text, !email.isEmpty, !password.isEmpty, password.count >= 6 else{
-            alertUserLoginError()
-            return
+        guard let email = emailField.text,
+            let password = passwordField.text,
+            !email.isEmpty, !password.isEmpty,
+            password.count >= 6 else{
+                alertUserLoginError()
+                return
         }
         
         spinner.show(in: view)
@@ -194,7 +197,23 @@ class LoginViewController: UIViewController {
             }
             let user = result.user
             
+            let safeEmail = DatabaseManager.safeEamil(emailAddrss: email)
+            DatabaseManager.shared.getDataFor(path: safeEmail, completion: {[weak self]result in
+                switch result {
+                case .success(let data):
+                    guard let userData = data as? [String:Any],
+                        let name = userData["name"] as? String else{
+                            return
+                    }
+                    UserDefaults.standard.set(name, forKey: "name")
+                case .failure(let error):
+                    print("Faild to read data with error \(error)")
+                }
+            })
+            
             UserDefaults.standard.set(email, forKey: "email")
+            
+            
             
             print("Success Loggin In User: \(user)")
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
@@ -230,9 +249,9 @@ extension LoginViewController: UITextFieldDelegate{
 //MARK:- Facebook Login
 extension LoginViewController: LoginButtonDelegate {
     func loginButtonDidLogOut(_ loginButton: FBLoginButton) {
-        
+        // no
     }
-    
+    //facebook login button
     func loginButton(_ loginButton: FBLoginButton, didCompleteWith result: LoginManagerLoginResult?, error: Error?) {
         guard let token = result?.token?.tokenString else {
             print("Faild log in with Facebook")
@@ -251,13 +270,20 @@ extension LoginViewController: LoginButtonDelegate {
                 return
             }
             
+            print(result)
+            
             guard let email = result["email"] as? String,
                 let name = result["name"] as? String,
                 let picture = result["picture"] as? [String:Any],
                 let data = picture["data"] as? [String:Any],
                 let pictureUrl = data["url"] as? String else {
+                    print("Faild to get email and name form fb result")
                     return
             }
+            
+            UserDefaults.standard.set(email, forKey: "email")
+            
+            UserDefaults.standard.set(name, forKey: "name")
             
             DatabaseManager.shared.selectEmail(with: email, completion: {exists in
                 if !exists {
