@@ -3,19 +3,19 @@
 
 ### Use Library
 ### Firebase
-'Firebase/Core'
-'Firebase/Auth'
-'Firebase/Database'
-'Firebase/Storage'
+- 'Firebase/Core'
+- 'Firebase/Auth'
+- 'Firebase/Database'
+- 'Firebase/Storage'
 
 ### Facebook
-'FBSDKLoginKit'
+- 'FBSDKLoginKit'
 
 ### Google
-'GoogleSignIn'
+- 'GoogleSignIn'
 
 ### etc 
-'MessageKit'
-'JGProgressHUD'
-'RealmSwift'
-'SDWebImage'
+- 'MessageKit'
+- 'JGProgressHUD'
+- 'RealmSwift'
+- 'SDWebImage'
