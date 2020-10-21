@@ -98,6 +98,7 @@ class LoginViewController: UIViewController {
         })
         
         GIDSignIn.sharedInstance()?.presentingViewController = self
+        
         title = "log In"
         self.view.backgroundColor = .white
         

@@ -64,50 +64,50 @@ extension DatabaseManager {
     public func insertUser(with user: ChatAppUser, comletion: @escaping (Bool) -> Void ){
         database.child(user.safeEmail).setValue([
             "name" : user.name
-            ], withCompletionBlock: { error,_  in
-                guard error == nil else{
-                    print("Failed to write to databas")
-                    comletion(false)
-                    return
-                }
-                
-                self.database.child("users").observeSingleEvent(of: .value, with: {snapshot in
-                    if var usersCollection = snapshot.value as? [[String: String]]{
-                        // append to user dictionary
-                        let newElement =  [
+        ], withCompletionBlock: { error,_  in
+            guard error == nil else{
+                print("Failed to write to databas")
+                comletion(false)
+                return
+            }
+            
+            self.database.child("users").observeSingleEvent(of: .value, with: {snapshot in
+                if var usersCollection = snapshot.value as? [[String: String]]{
+                    // append to user dictionary
+                    let newElement =  [
+                        "name": user.name,
+                        "email": user.safeEmail
+                    ]
+                    
+                    usersCollection.append(newElement)
+                    
+                    self.database.child("users").setValue(usersCollection, withCompletionBlock: { error, _ in
+                        guard error == nil else {
+                            comletion(false)
+                            return
+                        }
+                        comletion(true)
+                        
+                    })
+                }else{
+                    //create that array
+                    let newCollection: [[String: String]] = [
+                        [
                             "name": user.name,
                             "email": user.safeEmail
                         ]
+                    ]
+                    self.database.child("users").setValue(newCollection, withCompletionBlock: { error, _ in
+                        guard error == nil else {
+                            comletion(false)
+                            return
+                        }
+                        comletion(true)
                         
-                        usersCollection.append(newElement)
-                        
-                        self.database.child("users").setValue(usersCollection, withCompletionBlock: { error, _ in
-                            guard error == nil else {
-                                comletion(false)
-                                return
-                            }
-                            comletion(true)
-                            
-                        })
-                    }else{
-                        //create that array
-                        let newCollection: [[String: String]] = [
-                            [
-                                "name": user.name,
-                                "email": user.safeEmail
-                            ]
-                        ]
-                        self.database.child("users").setValue(newCollection, withCompletionBlock: { error, _ in
-                            guard error == nil else {
-                                comletion(false)
-                                return
-                            }
-                            comletion(true)
-                            
-                        })
-                        
-                    }
-                })
+                    })
+                    
+                }
+            })
         })
     }
     public func getAllusers(completion: @escaping (Result<[[String: String]],Error>) -> Void ) {
@@ -154,8 +154,8 @@ extension DatabaseManager {
     //Create new conversation with target user Email and first message sent
     public func createNewConversation(with otherUserEmail: String, name:String, firstMessage: Message, completion: @escaping(Bool) -> Void){
         guard let currentEmail = UserDefaults.standard.value(forKey: "email") as? String,
-            let currentName = UserDefaults.standard.value(forKey: "name") as? String else {
-                return
+              let currentName = UserDefaults.standard.value(forKey: "name") as? String else {
+            return
         }
         //특수문자 사용할 수 없음
         let safeEmail = DatabaseManager.safeEamil(emailAddrss: currentEmail)
@@ -340,13 +340,13 @@ extension DatabaseManager {
             }
             let conversations: [Conversation] = value.compactMap({dictionary in
                 guard let conversationId = dictionary["id"] as? String ,
-                    let name = dictionary["name"] as? String,
-                    let otherUserEmail = dictionary["other_user_email"] as? String,
-                    let latestMessage = dictionary["latest_message"] as? [String:Any],
-                    let date = latestMessage["date"] as? String,
-                    let message = latestMessage["message"] as? String,
-                    let isRead = latestMessage["is_read"] as? Bool else{
-                        return nil
+                      let name = dictionary["name"] as? String,
+                      let otherUserEmail = dictionary["other_user_email"] as? String,
+                      let latestMessage = dictionary["latest_message"] as? [String:Any],
+                      let date = latestMessage["date"] as? String,
+                      let message = latestMessage["message"] as? String,
+                      let isRead = latestMessage["is_read"] as? Bool else{
+                    return nil
                 }
                 
                 let latestMessageObject = LatestMessage(date: date, text: message, isRead: isRead)
@@ -365,22 +365,22 @@ extension DatabaseManager {
             }
             let messages: [Message] = value.compactMap({ dictionary in
                 guard let name = dictionary["name"] as? String,
-                    let isRead = dictionary["is_read"] as? Bool,
-                    let messageID = dictionary["id"] as? String,
-                    let content = dictionary["content"] as? String,
-                    let senderEmail = dictionary["sender_email"] as? String,
-                    let type = dictionary["type"] as? String,
-                    let dateString = dictionary["date"] as? String,
-                    let date = ChatViewController.dateFormatter.date(from: dateString)else {
-                        return nil
+                      let isRead = dictionary["is_read"] as? Bool,
+                      let messageID = dictionary["id"] as? String,
+                      let content = dictionary["content"] as? String,
+                      let senderEmail = dictionary["sender_email"] as? String,
+                      let type = dictionary["type"] as? String,
+                      let dateString = dictionary["date"] as? String,
+                      let date = ChatViewController.dateFormatter.date(from: dateString)else {
+                    return nil
                 }
                 
                 var kind: MessageKind?
                 if type == "photo" {
                     //photo
                     guard let imageUrl = URL(string: content),
-                        let placeHolder = UIImage(systemName: "plus") else{
-                            return nil
+                          let placeHolder = UIImage(systemName: "plus") else{
+                        return nil
                     }
                     let media = Media(url: imageUrl ,
                                       image: nil,
@@ -390,8 +390,8 @@ extension DatabaseManager {
                 }else if type == "video" {
                     //photo
                     guard let videoUrl = URL(string: content),
-                        let placeHolder = UIImage(named: "video_placeholder") else{
-                            return nil
+                          let placeHolder = UIImage(named: "video_placeholder") else{
+                        return nil
                     }
                     let media = Media(url: videoUrl ,
                                       image: nil,
@@ -582,20 +582,57 @@ extension DatabaseManager {
                 })
             }
         })
-    };
-}
-    
-    struct ChatAppUser {
-        let emailAddrss : String
-        let name        : String
+    }
+    ///채팅 삭제 메소드
+    public func deleteConversation(conversationId: String, completion: @escaping (Bool) -> Void){
         
-        var safeEmail   : String {
-            var safeEmail = emailAddrss.replacingOccurrences(of: ".", with: "-")
-            safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
-            return safeEmail
+        guard let email = UserDefaults.standard.value(forKey: "email") as? String else {
+            return
         }
-        var profilePictureFileName  : String {
-            //afraz9-gmail-com-profile-picture.png
-            return "\(safeEmail)_profile_picture.png"
+        let safeEmail = DatabaseManager.safeEamil(emailAddrss: email)
+        
+        print("\(conversationId)의 채팅을 삭제할 것이다 ")
+        // 모든 유저의 채팅을 가져온다 .
+        // 대상 ID가 있는 컬렉션에서 대화를 삭제한다.
+        // 사용자를 위해 대화를 재설정
+        let ref = database.child("\(safeEmail)/conversations")
+        ref.observeSingleEvent(of: .value) {snapshot in
+            if var conversations = snapshot.value as? [[String: Any]]{
+                var positionToRemove = 0
+                for conversation in conversations {
+                    if let id = conversation["id"] as? String,
+                       id == conversationId {
+                        print("찾은 대화 삭제")
+                        break
+                    }
+                    positionToRemove += 1
+                }
+                conversations.remove(at: positionToRemove)
+                ref.setValue(conversations, withCompletionBlock: {error, _ in
+                    guard error == nil else {
+                        completion(false)
+                        print("새 대화 배열을 작성 하지 못했습니다.")
+                        return
+                    }
+                    print("채팅 삭제")
+                    completion(true)
+                })
+            }
         }
+    }
+}
+
+struct ChatAppUser {
+    let emailAddrss : String
+    let name        : String
+    
+    var safeEmail   : String {
+        var safeEmail = emailAddrss.replacingOccurrences(of: ".", with: "-")
+        safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
+        return safeEmail
+    }
+    var profilePictureFileName  : String {
+        //afraz9-gmail-com-profile-picture.png
+        return "\(safeEmail)_profile_picture.png"
+    }
 }
