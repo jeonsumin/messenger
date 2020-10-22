@@ -48,7 +48,7 @@ class ConversationsViewController: UIViewController {
     }()
     
     private var loginObserver: NSObjectProtocol?
-        
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,7 +60,7 @@ class ConversationsViewController: UIViewController {
         setupTableView()
         fetchConversation()
         startListeningForConversations()
-       
+        
         loginObserver = NotificationCenter.default.addObserver(forName: Notification.Name.didLogInNotification ,object: nil,queue: .main, using: {[weak self] _ in
             guard let strongSelf = self else{
                 return
@@ -103,8 +103,23 @@ class ConversationsViewController: UIViewController {
     @objc private func didtapComposeBtn(){
         let vc = NewConversationViewController()
         vc.completion = {[weak self] result in
-            print("\(result)")
-            self?.createnewConversition(result: result)
+            guard let strongSelf = self else {
+                return
+            }
+            
+            let currentConversations = strongSelf.conversations
+            
+            if let targetConversation = currentConversations.first(where: {
+                $0.otheruserEmail == DatabaseManager.safeEamil(emailAddrss: result.email)
+            }){
+                let vc = ChatViewController(with: targetConversation.otheruserEmail, id: targetConversation.id)
+                vc.isNewConversation = false
+                vc.title = targetConversation.name
+                vc.navigationItem.largeTitleDisplayMode = .never
+                strongSelf.navigationController?.pushViewController(vc, animated: true)
+            }else{
+                strongSelf.createnewConversition(result: result)
+            }
         }
         let nav = UINavigationController(rootViewController: vc)
         present(nav, animated: true, completion: nil)
@@ -130,7 +145,6 @@ class ConversationsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         validateAuth()
-        
     }
     
     private func validateAuth(){
@@ -167,12 +181,16 @@ extension ConversationsViewController: UITableViewDelegate, UITableViewDataSourc
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let model = conversations[indexPath.row]
+        openConversation(model)
         
+    }
+    
+    func openConversation(_ model : Conversation){
         let vc = ChatViewController(with: model.otheruserEmail, id: model.id)
         vc.title = model.name
-        
         vc.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(vc, animated: true)
+        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

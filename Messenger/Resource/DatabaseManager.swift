@@ -50,7 +50,7 @@ extension DatabaseManager {
         safeEmail = safeEmail.replacingOccurrences(of: "@", with: "-")
         
         database.child(safeEmail).observeSingleEvent(of: .value) { (snapshot) in
-            guard snapshot.value as? String != nil else{
+            guard snapshot.value as? [String:Any] != nil else{
                 completion(false)
                 return
             }
@@ -221,25 +221,25 @@ extension DatabaseManager {
                 ]
             ]
             //update recipient conversation entry
-            self?.database.child("\(otherUserEmail)/convsersation").observeSingleEvent(of: .value, with: {[weak self] snapshot in
+            self?.database.child("\(otherUserEmail)/convsersations").observeSingleEvent(of: .value, with: {[weak self] snapshot in
                 if var conversations = snapshot.value as? [[String: Any]] {
                     // append
                     conversations.append(recipient_newConversationData)
-                    self?.database.child("\(otherUserEmail)/convsersation").setValue([conversationID])
+                    self?.database.child("\(otherUserEmail)/convsersations").setValue([conversations])
                 }else{
                     //create
-                    self?.database.child("\(otherUserEmail)/convsersation").setValue([recipient_newConversationData])
+                    self?.database.child("\(otherUserEmail)/convsersations").setValue([recipient_newConversationData])
                     
                 }
             })
             
             //Update current user conversation entry
-            if var conversations = userNode["conversation"] as? [[String:Any]] {
+            if var conversations = userNode["conversations"] as? [[String:Any]] {
                 //conversation array exists for current user
                 //you should append
                 
                 conversations.append(newConversationData)
-                userNode["conversation"] = conversations
+                userNode["conversations"] = conversations
                 ref.setValue(userNode, withCompletionBlock: {[weak self] error, _ in
                     guard error == nil else{
                         completion(false)
@@ -419,7 +419,7 @@ extension DatabaseManager {
     }
     
     // Sends a message with target conversation and message
-    public func sendMessage(to conversation:String,otherUserEmail : String, name: String, newMessage: Message, completion: @escaping (Bool) -> Void){
+    public func sendMessage(to conversation:String, otherUserEmail : String, name: String, newMessage: Message, completion: @escaping (Bool) -> Void){
         // add new message to messages
         //update sender latest message
         // update recipient latest message
@@ -619,6 +619,16 @@ extension DatabaseManager {
                 })
             }
         }
+    }
+    
+    public func conversationExists(with targetRecipientEmail: String, completion: @escaping (Result<String, Error>) -> Void) {
+        let sefeRecipientEmail = DatabaseManager.safeEamil(emailAddrss: targetRecipientEmail)
+        guard let senderEmail = UserDefaults.standard.value(forKey: "email") as? String else {
+            return
+        }
+        let safeSenderEmail = DatabaseManager.safeEamil(emailAddrss: senderEmail)
+        
+        
     }
 }
 
