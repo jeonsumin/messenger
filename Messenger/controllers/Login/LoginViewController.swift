@@ -16,6 +16,7 @@ class LoginViewController: UIViewController {
     
     private let spinner = JGProgressHUD(style: .dark)
     
+    //MARK:- UI
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.clipsToBounds = true
@@ -30,9 +31,10 @@ class LoginViewController: UIViewController {
         return imageView
     }()
     
+    //이메일
     private let emailField: UITextField = {
         let field = UITextField()
-        field.autocapitalizationType = .none    // 자동 보정 유형
+        field.autocapitalizationType = .none    // 자동 대소문자 유형
         field.autocorrectionType = .no          // 자동 보정 유형
         field.returnKeyType = .continue         // 리턴키
         field.layer.cornerRadius = 12           // 모서리 둥굴게
@@ -46,9 +48,10 @@ class LoginViewController: UIViewController {
         return field
     }()
     
+    //비밀번호
     private let passwordField: UITextField = {
         let field = UITextField()
-        field.autocapitalizationType = .none    // 자동 보정 유형
+        field.autocapitalizationType = .none    // 자동 대소문자 유형
         field.autocorrectionType = .no          // 자동 보정 유형
         field.returnKeyType = .done         // 리턴키
         field.layer.cornerRadius = 12           // 모서리 둥굴게
@@ -63,30 +66,33 @@ class LoginViewController: UIViewController {
         return field
     }()
     
+    // 로그인 버튼
     private let loginButton: UIButton = {
         let button = UIButton()
         button.setTitle("Log In", for: .normal)
         button.backgroundColor = .gray
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 12
-        button.layer.masksToBounds = true
+        button.layer.masksToBounds = true // 경계 마스킹
         button.titleLabel?.font = .systemFont(ofSize: 20, weight:.bold)
         return button
     }()
     
+    // 페이스북 로그인 버튼
     private let btnFBlogin : FBLoginButton = {
         let button = FBLoginButton()
         button.permissions = ["email,public_profile"]
         return button
     }()
     
+    // 구글 로그인 버튼
     private let btnGoogleLogin = GIDSignInButton()
     
     
     private var loginObserver : NSObjectProtocol?
     
     
-    
+    //MARK: LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -102,6 +108,7 @@ class LoginViewController: UIViewController {
         title = "log In"
         self.view.backgroundColor = .white
         
+        // 프로그래밍 방식의 barButtonItem 생성
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register",
                                                             style: .done,
                                                             target: self,
@@ -132,6 +139,7 @@ class LoginViewController: UIViewController {
         }
     }
     
+    // rootView에 프레임을 제공하여 각 UI의 위치 선정
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         scrollView.frame = view.bounds
@@ -171,19 +179,20 @@ class LoginViewController: UIViewController {
         emailField.resignFirstResponder()
         passwordField.resignFirstResponder()
         
-        
+        // 이메일, 패스워드 유효성 검사
         guard let email = emailField.text,
-            let password = passwordField.text,
-            !email.isEmpty, !password.isEmpty,
-            password.count >= 6 else{
-                alertUserLoginError()
-                return
+              let password = passwordField.text,
+              !email.isEmpty, !password.isEmpty,
+              password.count >= 6 else{
+            alertUserLoginError()
+            return
         }
         
         spinner.show(in: view)
         
         //MARK:- Friebase log In
         FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password, completion: { [weak self ]data, error in
+            
             guard let strongSelf = self else {
                 return
             }
@@ -203,8 +212,8 @@ class LoginViewController: UIViewController {
                 switch result {
                 case .success(let data):
                     guard let userData = data as? [String:Any],
-                        let name = userData["name"] as? String else{
-                            return
+                          let name = userData["name"] as? String else{
+                        return
                     }
                     UserDefaults.standard.set(name, forKey: "name")
                 case .failure(let error):
@@ -218,23 +227,32 @@ class LoginViewController: UIViewController {
             
             print("Success Loggin In User: \(user)")
             strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+            let userName = UserDefaults.standard.value(forKey: "name")
+            let userEmail = UserDefaults.standard.value(forKey: "email")
+            print("loginUserDefualtsName::: \(userName), loginUserDefaultsEmail:::: \(userEmail)")
         })
     }
     
-    func alertUserLoginError(){
-        let alert = UIAlertController(title: "알림", message: "로그인 해주시기 바랍니다.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
-        present(alert, animated: true)
-    }
-    
+    // 회원가입 바버튼아이템 ActionMethod
     @objc private func didTapRegister(){
         let vc = RegisterViewController()
         vc.title = "Create Account"
         navigationController?.pushViewController(vc, animated: true)
     }
     
+    // 경고 알림창
+    func alertUserLoginError(){
+        let alert = UIAlertController(title: "알림", message: "로그인 해주시기 바랍니다.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        present(alert, animated: true)
+    }
+    
+    
 }
+
+// MARK:-TextFiled
 extension LoginViewController: UITextFieldDelegate{
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
         if textField == emailField {
@@ -274,12 +292,12 @@ extension LoginViewController: LoginButtonDelegate {
             print(result)
             
             guard let email = result["email"] as? String,
-                let name = result["name"] as? String,
-                let picture = result["picture"] as? [String:Any],
-                let data = picture["data"] as? [String:Any],
-                let pictureUrl = data["url"] as? String else {
-                    print("Faild to get email and name form fb result")
-                    return
+                  let name = result["name"] as? String,
+                  let picture = result["picture"] as? [String:Any],
+                  let data = picture["data"] as? [String:Any],
+                  let pictureUrl = data["url"] as? String else {
+                print("Faild to get email and name form fb result")
+                return
             }
             
             UserDefaults.standard.set(email, forKey: "email")
@@ -314,7 +332,7 @@ extension LoginViewController: LoginButtonDelegate {
                                         print("Storage manager error: \(error)")
                                     }
                                 })
-                                }).resume()
+                            }).resume()
                             
                         }
                     })

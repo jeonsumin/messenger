@@ -11,17 +11,20 @@ import UIKit
 import FirebaseAuth
 import JGProgressHUD
 
+//MARK:- 회원가입
 class RegisterViewController: UIViewController {
 
     private let spinner = JGProgressHUD(style: .dark)
 
+    
+    //MARK:- UI
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.clipsToBounds = true
         return scrollView
     }()
     
-    //logo
+    //MARK: 프로필 이미지
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "person.circle")
@@ -33,9 +36,10 @@ class RegisterViewController: UIViewController {
         return imageView
     }()
     
+    //MARK: 이름
     private let firstNameField: UITextField = {
         let field = UITextField()
-        field.autocapitalizationType = .none    // 자동 보정 유형
+        field.autocapitalizationType = .none    // 자동 대소문자 유형
         field.autocorrectionType = .no          // 자동 보정 유형
         field.returnKeyType = .continue         // 리턴키
         field.layer.cornerRadius = 12           // 모서리 둥굴게
@@ -48,26 +52,11 @@ class RegisterViewController: UIViewController {
         field.backgroundColor = .white
         return field
     }()
-//
-//    private let lastNameField: UITextField = {
-//        let field = UITextField()
-//        field.autocapitalizationType = .none    // 자동 보정 유형
-//        field.autocorrectionType = .no          // 자동 보정 유형
-//        field.returnKeyType = .continue         // 리턴키
-//        field.layer.cornerRadius = 12           // 모서리 둥굴게
-//        field.layer.borderWidth = 1             // 태두리 픽셀
-//        field.layer.borderColor = UIColor.lightGray.cgColor
-//        field.placeholder = "last Name..."
-//
-//        field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
-//        field.leftViewMode = .always
-//        field.backgroundColor = .white
-//        return field
-//    }()
-    
+
+    //MARK: 이메일
     private let emailField: UITextField = {
         let field = UITextField()
-        field.autocapitalizationType = .none    // 자동 보정 유형
+        field.autocapitalizationType = .none    // 자동 대소문자 유형
         field.autocorrectionType = .no          // 자동 보정 유형
         field.returnKeyType = .continue         // 리턴키
         field.layer.cornerRadius = 12           // 모서리 둥굴게
@@ -81,10 +70,10 @@ class RegisterViewController: UIViewController {
         return field
     }()
     
-    
+    //MARK: 비밀번호
     private let passwordField: UITextField = {
         let field = UITextField()
-        field.autocapitalizationType = .none    // 자동 보정 유형
+        field.autocapitalizationType = .none    // 자동 대소문자 유형
         field.autocorrectionType = .no          // 자동 보정 유형
         field.returnKeyType = .done         // 리턴키
         field.layer.cornerRadius = 12           // 모서리 둥굴게
@@ -99,6 +88,7 @@ class RegisterViewController: UIViewController {
         return field
     }()
     
+    //MARK: 회원가입 버튼
     private let RegisterButton: UIButton = {
         let button = UIButton()
         button.setTitle("Register", for: .normal)
@@ -110,6 +100,7 @@ class RegisterViewController: UIViewController {
         return button
     }()
     
+    //MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "log In"
@@ -121,35 +112,33 @@ class RegisterViewController: UIViewController {
                                                             action: #selector(didTapRegister))
         
         
-        //add delegate
+        //MARK: delegate
         emailField.delegate = self
         passwordField.delegate = self
         
-        //add target
+        //MARK: target
         RegisterButton.addTarget(self, action: #selector(RegisterButtonTapped), for: .touchUpInside
         )
         
-        //add subView
+        //MARK: addsubView
         self.view.addSubview(scrollView)
         self.scrollView.addSubview(imageView)
         self.scrollView.addSubview(emailField)
         self.scrollView.addSubview(passwordField)
         self.scrollView.addSubview(RegisterButton)
         self.scrollView.addSubview(firstNameField)
-//        self.scrollView.addSubview(lastNameField)
         
+        //MARK: 이미지뷰 제스처 활성화
         imageView.isUserInteractionEnabled = true
         scrollView.isUserInteractionEnabled = true
         
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(didTapChangeProfilePic))
+        //MARK: TapGesture
+        let gesture = UITapGestureRecognizer(target: self,
+                                             action: #selector(didTapChangeProfilePic))
         imageView.addGestureRecognizer(gesture)
+        
     }
-    
-    @objc private func didTapChangeProfilePic(){
-        print("changeProfilePic")
-        presentPhotoActionSheet()
-    }
-    
+    //MARK: viewDidLayoutSubviews
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         scrollView.frame = view.bounds
@@ -182,11 +171,20 @@ class RegisterViewController: UIViewController {
                                       height: 52)
     }
     
+    //MARK: didTapChangeProfilePic
+    @objc private func didTapChangeProfilePic(){
+        print("changeProfilePic")
+        presentPhotoActionSheet()
+    }
+    
+    //MARK:- Action Method
     @objc private func RegisterButtonTapped(){
-        
+        print("회원가입 버튼 Tapped")
         emailField.resignFirstResponder()
         passwordField.resignFirstResponder()
+        firstNameField.resignFirstResponder()
         
+        //유효성 검사
         guard let Name = firstNameField.text,
             let email = emailField.text,
             let password = passwordField.text,
@@ -200,8 +198,8 @@ class RegisterViewController: UIViewController {
         }
         
         spinner.show(in: view)
-        // Friebase log In
         
+        //MARK: Friebase log In
         DatabaseManager.shared.selectEmail(with: email) { [weak self]exists in
             
             guard let strongSelf = self else {
@@ -218,15 +216,14 @@ class RegisterViewController: UIViewController {
                 return
             }
             
+            // firebase Auth인증 이메일 유저 생성
             FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { authRes, error in
+                
                 guard authRes != nil, error == nil else{
                     print("Error cureating user")
                     return
                 }
                 
-    
-//                let uid = authRes?.user.uid
-//                DatabaseManager.shared.insertbasicUser(with: uid!, firstName: firstName, lastName: lastName)
                 let chatuser = ChatAppUser(emailAddrss: email, name: Name)
                 DatabaseManager.shared.insertUser(with:chatuser, comletion: {success in
                     if success {
@@ -253,12 +250,14 @@ class RegisterViewController: UIViewController {
         }
     }
     
-    func alertUserLoginError(message : String = "로그인을 해주세요."){
+    //MARK:alertUserLoginError
+    func alertUserLoginError(message : String = "이메일 또는 비밀번호를 확인해주세요."){
         let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
         present(alert, animated: true)
     }
     
+    //MARK:didTapRegister
     @objc private func didTapRegister(){
         let vc = RegisterViewController()
         vc.title = "Create Account"
@@ -266,6 +265,8 @@ class RegisterViewController: UIViewController {
     }
     
 }
+
+//MARK:- TextfieldDelegate
 extension RegisterViewController: UITextFieldDelegate{
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
@@ -280,13 +281,14 @@ extension RegisterViewController: UITextFieldDelegate{
     }
 }
 
+//MARK:- ImagePickerDelegate
 extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
+        
     func presentPhotoActionSheet(){
         // custom Alert 시트 생성
         let actionSheet = UIAlertController(title: "프로필 이미지",
                                             message: "선택해주세요",
-                                            preferredStyle: .actionSheet)
+                                            preferredStyle: .actionSheet) 
         // alert시트에 액션 추가
         actionSheet.addAction(UIAlertAction(title: "취소",
                                             style: .cancel,
@@ -304,18 +306,20 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
                                             handler: {[weak self]_ in
                                                 self?.presentPhotoPicker()
         }))
+        
         present(actionSheet, animated: true, completion: nil)
     }
     
+    //MARK:
     func presentCamera(){
         let vc = UIImagePickerController()
         vc.sourceType = .camera
         vc.delegate = self
-        vc.allowsEditing = true
+        vc.allowsEditing = true // 편집 허용
         present(vc, animated: true)
         
     }
-    
+    //MARK:
     func presentPhotoPicker(){
         let vc = UIImagePickerController()
         vc.sourceType = .photoLibrary
@@ -325,16 +329,21 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
         
     }
     
+    //MARK:
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true, completion: nil)
-        print(info)
+        print("imagePickerConteroller :::: 선택한 이미지 세팅")
         guard let selectedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage else{
             return
         }
         self.imageView.image = selectedImage
     }
     
+    
+    /// 이미지피커뷰 닫기
+    //MARK:
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        
         picker.dismiss(animated: true, completion: nil)
     }
 }

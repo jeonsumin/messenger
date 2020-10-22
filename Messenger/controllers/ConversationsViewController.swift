@@ -1,10 +1,11 @@
 //
-//  ViewController.swift
+//  ConversationViewController.swift
 //  Messenger
 //
 //  Created by Terry on 2020/08/20.
 //  Copyright © 2020 Terry. All rights reserved.
 //
+
 
 import UIKit
 import FirebaseAuth
@@ -22,6 +23,9 @@ struct LatestMessage {
     let text : String
     let isRead: Bool
 }
+
+
+//MARK:- 대화창
 class ConversationsViewController: UIViewController {
     
     private let spinner = JGProgressHUD(style: .dark)
@@ -49,7 +53,8 @@ class ConversationsViewController: UIViewController {
     
     private var loginObserver: NSObjectProtocol?
     
-    
+    //MARK:- LifeCycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -67,8 +72,19 @@ class ConversationsViewController: UIViewController {
             }
             strongSelf.startListeningForConversations()
         })
-        
     }
+    
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        tableView.frame = view.bounds
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        validateAuth()
+    }
+    
     
     private func startListeningForConversations(){
         guard let email = UserDefaults.standard.value(forKey: "email") as? String else {
@@ -101,23 +117,30 @@ class ConversationsViewController: UIViewController {
     }
     
     @objc private func didtapComposeBtn(){
+        print("대화상대 검색 ")
         let vc = NewConversationViewController()
         vc.completion = {[weak self] result in
             guard let strongSelf = self else {
-                return
+                return 
             }
             
-            let currentConversations = strongSelf.conversations
+//            strongSelf.createnewConversition(result: result)
             
+            let currentConversations = strongSelf.conversations
+
             if let targetConversation = currentConversations.first(where: {
-                $0.otheruserEmail == DatabaseManager.safeEamil(emailAddrss: result.email)
+                
+                return $0.otheruserEmail == DatabaseManager.safeEamil(emailAddrss: result.email)
             }){
+//                strongSelf.createnewConversition(result: result)
+                print("기존에 있는대화  대화")
                 let vc = ChatViewController(with: targetConversation.otheruserEmail, id: targetConversation.id)
                 vc.isNewConversation = false
                 vc.title = targetConversation.name
                 vc.navigationItem.largeTitleDisplayMode = .never
                 strongSelf.navigationController?.pushViewController(vc, animated: true)
             }else{
+                print("기존에 없는 대화")
                 strongSelf.createnewConversition(result: result)
             }
         }
@@ -129,25 +152,39 @@ class ConversationsViewController: UIViewController {
         let name = result.name
         let email = result.email
         
-        let vc = ChatViewController(with: email, id: nil)
-        vc.isNewConversation = true
-        vc.title = name
-        vc.navigationItem.largeTitleDisplayMode = .never
-        navigationController?.pushViewController(vc, animated: true)
+        // 새로운 대화는 데이터베이스를 확인한다.
+        // 대화 아이디를 재사용할 경우 두 사용자와의 대화가 존재한다
+        // 그렇지 않으면 기존 코드를 통해 안전한 이메일로 만든다.
+        DatabaseManager.shared.conversationExists(with: email, completion: {[weak self] result in
+            guard let strongSelf = self else {
+                return
+            }
+            switch result {
+            case .success(let conversationId):
+                print("새로운 채팅 생성 성공")
+                let vc = ChatViewController(with: email, id: conversationId)
+                vc.isNewConversation = false
+                vc.title = name
+                vc.navigationItem.largeTitleDisplayMode = .never
+                strongSelf.navigationController?.pushViewController(vc, animated: true)
+              
+            case .failure(_):
+                print("기존 채팅 생성 성공")
+                let vc = ChatViewController(with: email, id: nil)
+                vc.isNewConversation = true
+                vc.title = name
+                vc.navigationItem.largeTitleDisplayMode = .never
+                strongSelf.navigationController?.pushViewController(vc, animated: true)
+                
+            }
+        })
         
     }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        tableView.frame = view.bounds
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        validateAuth()
-    }
-    
+    //로그인 인증
     private func validateAuth(){
+        /*
+         회원이 firebase에 존재하지 않을 경우에 로그인화면으로 이동
+         */
         if FirebaseAuth.Auth.auth().currentUser == nil {
             let vc = LoginViewController()
             let nav = UINavigationController(rootViewController: vc)

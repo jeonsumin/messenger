@@ -212,10 +212,11 @@ class ChatViewController: MessagesViewController{
                 self?.messages = messages
                 
                 DispatchQueue.main.async {
+                    self?.messagesCollectionView.reloadDataAndKeepOffset()
                     if shouldScrollBottom {
-                        self?.messagesCollectionView.reloadDataAndKeepOffset()
-                    }else{
                         self?.messagesCollectionView.scrollToBottom()
+                    }else{
+
                     }
                 }
                 
@@ -348,6 +349,7 @@ extension ChatViewController: UIImagePickerControllerDelegate, UINavigationContr
 
 extension ChatViewController :InputBarAccessoryViewDelegate {
     
+    //MARK:-sender false
     func inputBar(_ inputBar: InputBarAccessoryView, didPressSendButtonWith text: String) {
         guard !text.replacingOccurrences(of: " ", with: "").isEmpty,
             let selfSender = self.selfSender,
@@ -360,14 +362,15 @@ extension ChatViewController :InputBarAccessoryViewDelegate {
                                messageId: messageId,
                                sentDate: Date(),
                                kind: .text(text))
+        print("mmessage:::: \(mmessage)")
         //Send Message
         if isNewConversation {
             DatabaseManager.shared.createNewConversation(with: otherUserEmail, name: self.title ?? "User" ,firstMessage:mmessage , completion: {[weak self] success in
                 if success {
-                    print("message sent")
+                    print("message sent!!!!!")
                     self?.isNewConversation = false
                 }else{
-                    print("falid message Sent ")
+                    print("falid message Sent !!!")
                 }
             })
             
@@ -377,12 +380,13 @@ extension ChatViewController :InputBarAccessoryViewDelegate {
                 let name = self.title else {
                     return
             }
+            print("conversationId ::: \(conversationId), otherUserEmail::: \(self.otherUserEmail)")
             //append to exising conversion data
-            DatabaseManager.shared.sendMessage(to: conversationId, otherUserEmail : otherUserEmail ,name: name, newMessage: mmessage, completion: {success in
+            DatabaseManager.shared.sendMessage(to: self.otherUserEmail, otherUserEmail : otherUserEmail ,name: name, newMessage: mmessage, completion: {success in
                 if success {
-                    print("message sent")
+                    print("message sent????")
                 }else{
-                    print("faild sent")
+                    print("faild message sent????")
                 }
             })
         }
