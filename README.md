@@ -1,5 +1,5 @@
 # Messenger
-개요 : firebase를 사용하는 swift5 응용 프로그램인 실시간 채팅 앱
+firebase를 사용하는 swift5 응용 프로그램인 실시간 채팅 앱
 
 ## 기능
 - 페이스북 로그인
