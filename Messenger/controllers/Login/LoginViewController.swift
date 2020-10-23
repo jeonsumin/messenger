@@ -12,7 +12,8 @@ import FirebaseAuth
 import FBSDKLoginKit
 import GoogleSignIn
 import JGProgressHUD
-class LoginViewController: UIViewController {
+
+final class LoginViewController: UIViewController {
     
     private let spinner = JGProgressHUD(style: .dark)
     
@@ -106,7 +107,7 @@ class LoginViewController: UIViewController {
         GIDSignIn.sharedInstance()?.presentingViewController = self
         
         title = "log In"
-        self.view.backgroundColor = .secondarySystemBackground
+        view.backgroundColor = .secondarySystemBackground
         
         // 프로그래밍 방식의 barButtonItem 생성
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register",
@@ -124,13 +125,13 @@ class LoginViewController: UIViewController {
         btnFBlogin.delegate = self
         
         //MARK: - add subView
-        self.view.addSubview(scrollView)
-        self.scrollView.addSubview(imageView)
-        self.scrollView.addSubview(emailField)
-        self.scrollView.addSubview(passwordField)
-        self.scrollView.addSubview(loginButton)
-        self.scrollView.addSubview(btnFBlogin)
-        self.scrollView.addSubview(btnGoogleLogin)
+        view.addSubview(scrollView)
+        scrollView.addSubview(imageView)
+        scrollView.addSubview(emailField)
+        scrollView.addSubview(passwordField)
+        scrollView.addSubview(loginButton)
+        scrollView.addSubview(btnFBlogin)
+        scrollView.addSubview(btnGoogleLogin)
     }
     
     deinit {

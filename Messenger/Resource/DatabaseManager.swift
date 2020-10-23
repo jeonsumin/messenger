@@ -10,12 +10,17 @@ import Foundation
 import FirebaseDatabase
 import MessageKit
 
-//MARK:- DatabaseManager
+/// 클래스의 실시간 firebase 데이터베이스 공유 인스턴스에 데이터를 쓰고
 final class DatabaseManager {
     
+    // 클래스의 인스턴스 공유
     static let shared = DatabaseManager()
     
     private let database = Database.database().reference()
+    
+    private init(){
+        
+    }
     
     static func safeEamil(emailAddrss: String) -> String {
         var safeEmail = emailAddrss.replacingOccurrences(of: ".", with: "-")
@@ -23,16 +28,16 @@ final class DatabaseManager {
         return safeEmail
     }
     
-    public func test(){
-        database.child("한글테스트").setValue(["something": "한글한글"])
-    }
     
     
 }
 
 extension DatabaseManager{
+    
+    
+    /// Returns dictionary node at child path
     public func getDataFor(path: String, completion: @escaping (Result<Any,Error>) -> Void){
-        self.database.child("\(path)").observeSingleEvent(of: .value){ snapshot in
+        database.child("\(path)").observeSingleEvent(of: .value){ snapshot in
             guard let value = snapshot.value else {
                 completion(.failure(DatabaseError.failedToFecth))
                 return
@@ -46,8 +51,10 @@ extension DatabaseManager{
 extension DatabaseManager {
     
     //MARK:- Find User
-    
-    // userExists
+    ///Check if user exists for given email
+    /// Parameters
+    /// - `email`:            Target email to be checked
+    /// - `completion`:   Async closure to return with result
     public func selectEmail(with email : String , completion: @escaping((Bool) -> Void)) {
         
 //        var safeEmail = email.replacingOccurrences(of: ".", with: "-")
@@ -70,14 +77,18 @@ extension DatabaseManager {
     public func insertUser(with user: ChatAppUser, comletion: @escaping (Bool) -> Void ){
         database.child(user.safeEmail).setValue([
             "name" : user.name
-        ], withCompletionBlock: { error,_  in
+        ], withCompletionBlock: {[weak self] error,_  in
+            
+            guard let strongSelf = self else {
+                return
+            }
             guard error == nil else{
                 print("Failed to write to databas")
                 comletion(false)
                 return
             }
             
-            self.database.child("users").observeSingleEvent(of: .value, with: {snapshot in
+            strongSelf.database.child("users").observeSingleEvent(of: .value, with: {snapshot in
                 if var usersCollection = snapshot.value as? [[String: String]]{
                     // append to user dictionary
                     let newElement =  [
@@ -87,7 +98,7 @@ extension DatabaseManager {
                     
                     usersCollection.append(newElement)
                     
-                    self.database.child("users").setValue(usersCollection, withCompletionBlock: { error, _ in
+                    strongSelf.database.child("users").setValue(usersCollection, withCompletionBlock: { error, _ in
                         guard error == nil else {
                             comletion(false)
                             return
@@ -103,7 +114,7 @@ extension DatabaseManager {
                             "email": user.safeEmail
                         ]
                     ]
-                    self.database.child("users").setValue(newCollection, withCompletionBlock: { error, _ in
+                    strongSelf.database.child("users").setValue(newCollection, withCompletionBlock: { error, _ in
                         guard error == nil else {
                             comletion(false)
                             return
@@ -117,7 +128,7 @@ extension DatabaseManager {
         })
     }
     
-    
+    /// Gets All Users from database
     public func getAllusers(completion: @escaping (Result<[[String: String]],Error>) -> Void ) {
         database.child("users").observeSingleEvent(of: .value, with: {snapshot in
             
@@ -133,6 +144,13 @@ extension DatabaseManager {
     
     public enum DatabaseError : Error {
         case failedToFecth
+        
+        public var localizedDescription: String{
+            switch self {
+            case .failedToFecth:
+                return "This means blah failed"
+            }
+        }
     }
 }
 

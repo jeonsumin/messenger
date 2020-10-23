@@ -12,7 +12,7 @@ import FBSDKCoreKit
 import GoogleSignIn
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
     
     
     func application( _ application: UIApplication, didFinishLaunchingWithOptions launchOptions:
@@ -35,6 +35,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         return GIDSignIn.sharedInstance().handle(url)
     }
     
+    
+    //
+    //    func application(_ application: UIApplication, open url: URL, options:[UIApplication.OpenURLOptionsKey : Any]) -> Bool {
+    //        return GIDSignIn.sharedInstance()?.handle(url)
+    //    }
+    //google Login //
+}
+
+//MARK: - GIDSignInDelegate
+extension AppDelegate: GIDSignInDelegate{
     
     //google Login
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
@@ -110,11 +120,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!, withError error: Error!) {
         print("구글 로그인 연결 오류 ")
     }
-    //
-    //    func application(_ application: UIApplication, open url: URL, options:[UIApplication.OpenURLOptionsKey : Any]) -> Bool {
-    //        return GIDSignIn.sharedInstance()?.handle(url)
-    //    }
-    //google Login //
 }
-
-

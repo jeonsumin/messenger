@@ -12,10 +12,10 @@ import FirebaseAuth
 import JGProgressHUD
 
 //MARK:- 회원가입
-class RegisterViewController: UIViewController {
-
+final class RegisterViewController: UIViewController {
+    
     private let spinner = JGProgressHUD(style: .dark)
-
+    
     
     //MARK:- UI
     private let scrollView: UIScrollView = {
@@ -52,7 +52,7 @@ class RegisterViewController: UIViewController {
         field.backgroundColor = .secondarySystemBackground
         return field
     }()
-
+    
     //MARK: 이메일
     private let emailField: UITextField = {
         let field = UITextField()
@@ -104,7 +104,7 @@ class RegisterViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "log In"
-        self.view.backgroundColor = .systemBackground
+        view.backgroundColor = .systemBackground
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register",
                                                             style: .done,
@@ -121,12 +121,12 @@ class RegisterViewController: UIViewController {
         )
         
         //MARK: addsubView
-        self.view.addSubview(scrollView)
-        self.scrollView.addSubview(imageView)
-        self.scrollView.addSubview(emailField)
-        self.scrollView.addSubview(passwordField)
-        self.scrollView.addSubview(RegisterButton)
-        self.scrollView.addSubview(firstNameField)
+        view.addSubview(scrollView)
+        scrollView.addSubview(imageView)
+        scrollView.addSubview(emailField)
+        scrollView.addSubview(passwordField)
+        scrollView.addSubview(RegisterButton)
+        scrollView.addSubview(firstNameField)
         
         //MARK: 이미지뷰 제스처 활성화
         imageView.isUserInteractionEnabled = true
@@ -153,10 +153,10 @@ class RegisterViewController: UIViewController {
                                       y: imageView.bottom+10,
                                       width: scrollView.width-60,
                                       height: 52)
-//        lastNameField.frame = CGRect(x: 30,
-//                                     y: firstNameField.bottom+10,
-//                                     width: scrollView.width-60,
-//                                     height: 52)
+        //        lastNameField.frame = CGRect(x: 30,
+        //                                     y: firstNameField.bottom+10,
+        //                                     width: scrollView.width-60,
+        //                                     height: 52)
         emailField.frame = CGRect(x: 30,
                                   y: firstNameField.bottom+10,
                                   width: scrollView.width-60,
@@ -186,15 +186,15 @@ class RegisterViewController: UIViewController {
         
         //유효성 검사
         guard let Name = firstNameField.text,
-            let email = emailField.text,
-            let password = passwordField.text,
-            !email.isEmpty,
-            !password.isEmpty,
-            !Name.isEmpty,
-//            !lastName.isEmpty,
-            password.count >= 6 else{
-                alertUserLoginError()
-                return
+              let email = emailField.text,
+              let password = passwordField.text,
+              !email.isEmpty,
+              !password.isEmpty,
+              !Name.isEmpty,
+              //            !lastName.isEmpty,
+              password.count >= 6 else{
+            alertUserLoginError()
+            return
         }
         
         spinner.show(in: view)
@@ -208,7 +208,7 @@ class RegisterViewController: UIViewController {
             
             DispatchQueue.main.async {
                 strongSelf.spinner.dismiss()
-
+                
             }
             guard !exists else{
                 //useralready exists
@@ -234,7 +234,7 @@ class RegisterViewController: UIViewController {
                     if success {
                         //upload Image
                         guard let image = strongSelf.imageView.image,
-                            let data = image.pngData() else {
+                              let data = image.pngData() else {
                             return
                         }
                         let filename = chatuser.profilePictureFileName
@@ -249,7 +249,7 @@ class RegisterViewController: UIViewController {
                         })
                     }
                 })
-
+                
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             }
         }
@@ -288,7 +288,7 @@ extension RegisterViewController: UITextFieldDelegate{
 
 //MARK:- ImagePickerDelegate
 extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        
+    
     func presentPhotoActionSheet(){
         // custom Alert 시트 생성
         let actionSheet = UIAlertController(title: "프로필 이미지",
@@ -304,13 +304,13 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
                                             handler: {
                                                 [weak self] _ in
                                                 self?.presentCamera()
-        }))
+                                            }))
         
         actionSheet.addAction(UIAlertAction(title: "앨범",
                                             style: .default,
                                             handler: {[weak self]_ in
                                                 self?.presentPhotoPicker()
-        }))
+                                            }))
         
         present(actionSheet, animated: true, completion: nil)
     }
@@ -341,7 +341,7 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
         guard let selectedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage else{
             return
         }
-        self.imageView.image = selectedImage
+        imageView.image = selectedImage
     }
     
     

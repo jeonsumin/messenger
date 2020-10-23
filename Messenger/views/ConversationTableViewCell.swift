@@ -65,8 +65,8 @@ class ConversationTableViewCell: UITableViewCell {
     }
     
     public func configure(with model: Conversation){
-        self.userMessageLable.text = model.latestMessage.text
-        self.userNameLabel.text = model.name
+        userMessageLable.text = model.latestMessage.text
+        userNameLabel.text = model.name
 
         let path = "images/\(model.otheruserEmail)_profile_picture.png"
         print(path)
