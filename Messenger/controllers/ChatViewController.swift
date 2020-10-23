@@ -12,6 +12,7 @@ import InputBarAccessoryView
 import SDWebImage
 import AVFoundation
 import AVKit
+import CoreLocation
 
 struct Message: MessageType {
     public var sender      : SenderType
@@ -61,8 +62,16 @@ struct Media: MediaItem {
     var size: CGSize
 }
 
+struct Location: LocationItem {
+    var location: CLLocation
+    var size: CGSize
+}
+
 class ChatViewController: MessagesViewController{
-    
+
+    private var sendderPhotoURL: URL?
+    private var otherUserPhotoURL: URL?
+
     public static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -71,10 +80,11 @@ class ChatViewController: MessagesViewController{
         return formatter
     }()
     
-    public var isNewConversation = false
+   
     public let otherUserEmail: String
+    private var conversationId: String?
+    public var isNewConversation = false
     
-    private let conversationId: String?
     private var messages = [Message]()
     
     
@@ -140,9 +150,11 @@ class ChatViewController: MessagesViewController{
         actionSheet.addAction(UIAlertAction(title: "Audio", style: .default, handler: { _ in
             
         }))
+       
         actionSheet.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
         present(actionSheet, animated: true)
     }
+    
     
     private func presentPhotoinputActionSheet(){
         let actionSheet = UIAlertController(title: "Attach Media",
@@ -369,6 +381,11 @@ extension ChatViewController :InputBarAccessoryViewDelegate {
                 if success {
                     print("message sent!!!!!")
                     self?.isNewConversation = false
+                    
+                    let newConversationId = "conversation_\(mmessage.messageId)"
+                    self?.conversationId = newConversationId
+                    self?.listenForMessage(id: newConversationId, shouldScrollBottom: true)
+                    self?.messageInputBar.inputTextView.text = nil
                 }else{
                     print("falid message Sent !!!")
                 }
@@ -382,8 +399,9 @@ extension ChatViewController :InputBarAccessoryViewDelegate {
             }
             print("conversationId ::: \(conversationId), otherUserEmail::: \(self.otherUserEmail)")
             //append to exising conversion data
-            DatabaseManager.shared.sendMessage(to: self.otherUserEmail, otherUserEmail : otherUserEmail ,name: name, newMessage: mmessage, completion: {success in
+            DatabaseManager.shared.sendMessage(to: conversationId, otherUserEmail : otherUserEmail ,name: name, newMessage: mmessage, completion: {[weak self] success in
                 if success {
+                    self?.messageInputBar.inputTextView.text = nil
                     print("message sent????")
                 }else{
                     print("faild message sent????")
@@ -443,6 +461,73 @@ extension ChatViewController :MessagesDataSource, MessagesLayoutDelegate, Messag
             imageView.sd_setImage(with: imageUrl, completed: nil)
         default:
             break
+        }
+    }
+    
+    func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
+        let sender = message.sender
+        if sender.senderId == selfSender?.senderId {
+            return .link
+        }
+        return .secondarySystemBackground
+    }
+    
+    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+        
+        let sender = message.sender
+        if sender.senderId == selfSender?.senderId{
+            // 사용자 설정 이미지보여주기
+            if let currentUserImage = self.sendderPhotoURL {
+                avatarView.sd_setImage(with: currentUserImage, completed: nil)
+                
+            }else{
+                guard let email = UserDefaults.standard.value(forKey: "email") as? String else {
+                    return
+                }
+                let safeEmail = DatabaseManager.safeEamil(emailAddrss: email)
+                let path = "images/\(safeEmail)_profile_picture.png"
+                
+                //기본 url
+                StorageManager.shard.downloadURL(for: path, completion: {[weak self] result in
+                    
+                    switch result {
+                    case .success(let url):
+                        self?.sendderPhotoURL = url
+                        DispatchQueue.main.async {
+                            avatarView.sd_setImage(with: url, completed: nil)
+                        }
+                        
+                    case .failure(let error):
+                        print("\(error)")
+                    }
+                    
+                })
+            }
+        }else{
+            // 다른 상대 이미지
+            if let otherUserPhotoURL = self.otherUserPhotoURL {
+                avatarView.sd_setImage(with: otherUserPhotoURL, completed: nil)
+            }else{
+                let email = self.otherUserEmail
+                
+                let safeEmail = DatabaseManager.safeEamil(emailAddrss: email)
+                let path = "images/\(safeEmail)_profile_picture.png"
+                
+                //기본 url
+                StorageManager.shard.downloadURL(for: path, completion: {[weak self] result in
+                    
+                    switch result {
+                    case .success(let url):
+                        self?.otherUserPhotoURL = url
+                        DispatchQueue.main.async {
+                            avatarView.sd_setImage(with: url, completed: nil)
+                        }
+                        
+                    case .failure(let error):
+                        print("\(error)")
+                    }
+                })
+            }
         }
     }
     

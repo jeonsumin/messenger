@@ -44,7 +44,7 @@ class LoginViewController: UIViewController {
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
-        field.backgroundColor = .white
+        field.backgroundColor = .secondarySystemBackground // 다크모드 호환성을 위하여
         return field
     }()
     
@@ -61,7 +61,7 @@ class LoginViewController: UIViewController {
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
-        field.backgroundColor = .white
+        field.backgroundColor = .secondarySystemBackground
         field.isSecureTextEntry = true
         return field
     }()
@@ -106,7 +106,7 @@ class LoginViewController: UIViewController {
         GIDSignIn.sharedInstance()?.presentingViewController = self
         
         title = "log In"
-        self.view.backgroundColor = .white
+        self.view.backgroundColor = .secondarySystemBackground
         
         // 프로그래밍 방식의 barButtonItem 생성
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register",

@@ -63,7 +63,7 @@ class ConversationsViewController: UIViewController {
         view.addSubview(tableView)
         view.addSubview(noConversationLable)
         setupTableView()
-        fetchConversation()
+        //fetchConversation()
         startListeningForConversations()
         
         loginObserver = NotificationCenter.default.addObserver(forName: Notification.Name.didLogInNotification ,object: nil,queue: .main, using: {[weak self] _ in
@@ -78,6 +78,10 @@ class ConversationsViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
+        noConversationLable.frame = CGRect(x: 10,
+                                           y: (view.height-100)/2,
+                                           width: view.width-20,
+                                           height: 100)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -98,19 +102,27 @@ class ConversationsViewController: UIViewController {
         
         
         let safeEmail = DatabaseManager.safeEamil(emailAddrss: email)
+        
         DatabaseManager.shared.getAllConversations(for: safeEmail, completion: { [weak self]res in
             switch res {
             case .success(let conversation):
                 print("success get convo model")
                 guard !conversation.isEmpty else{
+                    self?.tableView.isHidden = true
+                    self?.noConversationLable.isHidden = false
                     return
                 }
+                self?.noConversationLable.isHidden = true
+                self?.tableView.isHidden = false
                 self?.conversations = conversation
                 
                 DispatchQueue.main.async {
                     self?.tableView.reloadData()
                 }
             case .failure(let error):
+                self?.tableView.isHidden = true
+                self?.noConversationLable.isHidden = false
+                 
                 print("failed to get Convos: \(error)")
             }
         })
@@ -197,9 +209,6 @@ class ConversationsViewController: UIViewController {
         tableView.dataSource = self
     }
     
-    private func fetchConversation(){
-        tableView.isHidden = false
-    }
 }
 
 extension ConversationsViewController: UITableViewDelegate, UITableViewDataSource{

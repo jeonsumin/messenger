@@ -202,6 +202,7 @@
 				DE05202B24EEBFF300AAD92B /* Resources */,
 				F9FBBDFA3312AA48B88E386B /* [CP] Embed Pods Frameworks */,
 				D2D213CCE7ADB69966C3D862 /* [CP] Copy Pods Resources */,
+				DE348A5625429AA000C749B7 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -298,6 +299,23 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Messenger/Pods-Messenger-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		DE348A5625429AA000C749B7 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
 		};
 		F9FBBDFA3312AA48B88E386B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;

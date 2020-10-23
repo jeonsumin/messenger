@@ -49,7 +49,7 @@ class RegisterViewController: UIViewController {
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
-        field.backgroundColor = .white
+        field.backgroundColor = .secondarySystemBackground
         return field
     }()
 
@@ -66,7 +66,7 @@ class RegisterViewController: UIViewController {
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
-        field.backgroundColor = .white
+        field.backgroundColor = .secondarySystemBackground
         return field
     }()
     
@@ -83,7 +83,7 @@ class RegisterViewController: UIViewController {
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
         field.leftViewMode = .always
-        field.backgroundColor = .white
+        field.backgroundColor = .secondarySystemBackground
         field.isSecureTextEntry = true
         return field
     }()
@@ -93,7 +93,7 @@ class RegisterViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Register", for: .normal)
         button.backgroundColor = .systemGreen
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.white , for: .normal)
         button.layer.cornerRadius = 12
         button.layer.masksToBounds = true
         button.titleLabel?.font = .systemFont(ofSize: 20, weight:.bold)
@@ -104,7 +104,7 @@ class RegisterViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "log In"
-        self.view.backgroundColor = .white
+        self.view.backgroundColor = .systemBackground
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register",
                                                             style: .done,
@@ -223,6 +223,11 @@ class RegisterViewController: UIViewController {
                     print("Error cureating user")
                     return
                 }
+                
+                
+                UserDefaults.standard.setValue(email, forKey: "email")
+                UserDefaults.standard.setValue(Name, forKey: "name")
+                
                 
                 let chatuser = ChatAppUser(emailAddrss: email, name: Name)
                 DatabaseManager.shared.insertUser(with:chatuser, comletion: {success in

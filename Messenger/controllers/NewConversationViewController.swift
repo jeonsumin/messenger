@@ -52,7 +52,7 @@ class NewConversationViewController: UIViewController {
         
         tableView.dataSource = self
         tableView.delegate = self
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         searchBar.delegate = self
         
         navigationController?.navigationBar.topItem?.titleView = searchBar
