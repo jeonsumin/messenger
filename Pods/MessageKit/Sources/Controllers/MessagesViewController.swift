@@ -1,7 +1,7 @@
 /*
  MIT License
 
- Copyright (c) 2017-2019 MessageKit
+ Copyright (c) 2017-2020 MessageKit
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,13 +22,14 @@
  SOFTWARE.
  */
 
+import Foundation
 import UIKit
 import InputBarAccessoryView
 
 /// A subclass of `UIViewController` with a `MessagesCollectionView` object
 /// that is used to display conversation interfaces.
 open class MessagesViewController: UIViewController,
-UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UIGestureRecognizerDelegate {
 
     /// The `MessagesCollectionView` managed by the messages view controller object.
     open var messagesCollectionView = MessagesCollectionView()
@@ -48,6 +49,7 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     ///
     /// The default value of this property is `false`.
     /// NOTE: This is related to `scrollToBottom` whereas the above flag is related to `scrollToLastItem` - check each function for differences
+    @available(*, deprecated, message: "Control scrolling to bottom on keyboardBeginEditing by using scrollsToLastItemOnKeyboardBeginsEditing instead", renamed: "scrollsToLastItemOnKeyboardBeginsEditing")
     open var scrollsToBottomOnKeyboardBeginsEditing: Bool = false
     
     /// A Boolean value that determines whether the `MessagesCollectionView`
@@ -55,6 +57,22 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     ///
     /// The default value of this property is `false`.
     open var maintainPositionOnKeyboardFrameChanged: Bool = false
+
+    /// Display the date of message by swiping left.
+    /// The default value of this property is `false`.
+    open var showMessageTimestampOnSwipeLeft: Bool = false {
+        didSet {
+            messagesCollectionView.showMessageTimestampOnSwipeLeft = showMessageTimestampOnSwipeLeft
+            if showMessageTimestampOnSwipeLeft {
+                addPanGesture()
+            } else {
+                removePanGesture()
+            }
+        }
+    }
+
+    /// Pan gesture for display the date of message by swiping left.
+    private var panGesture: UIPanGestureRecognizer?
 
     open override var canBecomeFirstResponder: Bool {
         return true
@@ -108,6 +126,13 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
         addObservers()
     }
     
+    open override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if !isFirstLayout {
+            addKeyboardObservers()
+        }
+    }
+    
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         isMessagesControllerBeingDismissed = false
@@ -116,6 +141,7 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         isMessagesControllerBeingDismissed = true
+        removeKeyboardObservers()
     }
     
     open override func viewDidDisappear(_ animated: Bool) {
@@ -140,13 +166,59 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     // MARK: - Initializers
 
     deinit {
-        removeKeyboardObservers()
         removeMenuControllerObservers()
         removeObservers()
         clearMemoryCache()
     }
 
     // MARK: - Methods [Private]
+
+    /// Display time of message by swiping the cell
+    private func addPanGesture() {
+        panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        guard let panGesture = panGesture else {
+            return
+        }
+        panGesture.delegate = self
+        messagesCollectionView.addGestureRecognizer(panGesture)
+        messagesCollectionView.clipsToBounds = false
+    }
+
+    private func removePanGesture() {
+        guard let panGesture = panGesture else {
+            return
+        }
+        panGesture.delegate = nil
+        self.panGesture = nil
+        messagesCollectionView.removeGestureRecognizer(panGesture)
+        messagesCollectionView.clipsToBounds = true
+    }
+
+    @objc
+    private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        guard let parentView = gesture.view else {
+            return
+        }
+
+        switch gesture.state {
+        case .began, .changed:
+            messagesCollectionView.showsVerticalScrollIndicator = false
+            let translation = gesture.translation(in: view)
+            let minX = -(view.frame.size.width * 0.35)
+            let maxX: CGFloat = 0
+            var offsetValue = translation.x
+            offsetValue = max(offsetValue, minX)
+            offsetValue = min(offsetValue, maxX)
+            parentView.frame.origin.x = offsetValue
+        case .ended:
+            messagesCollectionView.showsVerticalScrollIndicator = true
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.8, options: .curveEaseOut, animations: {
+                parentView.frame.origin.x = 0
+            }, completion: nil)
+        default:
+            break
+        }
+    }
 
     private func setupDefaults() {
         extendedLayoutIncludesOpaqueBars = true
@@ -155,6 +227,9 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
         messagesCollectionView.keyboardDismissMode = .interactive
         messagesCollectionView.alwaysBounceVertical = true
         messagesCollectionView.backgroundColor = .collectionViewBackground
+        if #available(iOS 13.0, *) {
+            messagesCollectionView.automaticallyAdjustsScrollIndicatorInsets = false
+        }
     }
 
     private func setupDelegates() {
@@ -419,5 +494,16 @@ UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     
     @objc private func clearMemoryCache() {
         MessageStyle.bubbleImageCache.removeAllObjects()
+    }
+
+    // MARK: - UIGestureRecognizerDelegate
+
+    /// check pan gesture direction
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else {
+            return false
+        }
+        let velocity = panGesture.velocity(in: messagesCollectionView)
+        return abs(velocity.x) > abs(velocity.y)
     }
 }

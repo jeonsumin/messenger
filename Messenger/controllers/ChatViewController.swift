@@ -85,20 +85,17 @@ final class ChatViewController: MessagesViewController{
     }
     
     private func presentInputActionSheet(){
-        let actionSheet = UIAlertController(title: "Attach Media",
-                                            message: "What would you like to attache",
+        let actionSheet = UIAlertController(title: "선택",
+                                            message: "",
                                             preferredStyle: .actionSheet)
-        actionSheet.addAction(UIAlertAction(title: "photo", style: .default, handler: { [weak self] _ in
+        actionSheet.addAction(UIAlertAction(title: "사진", style: .default, handler: { [weak self] _ in
             self?.presentPhotoinputActionSheet()
         }))
-        actionSheet.addAction(UIAlertAction(title: "Video", style: .default, handler: { [weak self] _ in
+        actionSheet.addAction(UIAlertAction(title: "비디오", style: .default, handler: { [weak self] _ in
             self?.presentVideoinputActionSheet()
         }))
-        actionSheet.addAction(UIAlertAction(title: "Audio", style: .default, handler: { _ in
-            
-        }))
        
-        actionSheet.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
         present(actionSheet, animated: true)
     }
     
@@ -107,7 +104,7 @@ final class ChatViewController: MessagesViewController{
         let actionSheet = UIAlertController(title: "Attach Media",
                                             message: "where would you like to attache a photo from ",
                                             preferredStyle: .actionSheet)
-        actionSheet.addAction(UIAlertAction(title: "Camera", style: .default, handler: { [weak self] _ in
+        actionSheet.addAction(UIAlertAction(title: "카메라", style: .default, handler: { [weak self] _ in
             
             let picker = UIImagePickerController()
             picker.sourceType = .camera
@@ -116,7 +113,7 @@ final class ChatViewController: MessagesViewController{
             self?.present(picker, animated: true)
             
         }))
-        actionSheet.addAction(UIAlertAction(title: "PhotoLibrary", style: .default, handler: { [weak self] _ in
+        actionSheet.addAction(UIAlertAction(title: "앨범", style: .default, handler: { [weak self] _ in
             
             let picker = UIImagePickerController()
             picker.sourceType = .photoLibrary
@@ -124,7 +121,7 @@ final class ChatViewController: MessagesViewController{
             picker.allowsEditing = true
             self?.present(picker, animated: true)
         }))
-        actionSheet.addAction(UIAlertAction(title: "cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
         
         present(actionSheet, animated: true)
     }
