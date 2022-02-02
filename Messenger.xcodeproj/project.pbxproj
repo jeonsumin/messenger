@@ -27,10 +27,10 @@
 		DE492E9025D25EA700680639 /* userListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE492E8F25D25EA700680639 /* userListTableViewCell.swift */; };
 		DE667F0B24F2113B00003847 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE667F0A24F2113B00003847 /* DatabaseManager.swift */; };
 		DE6B19AB24EECA43004F21FC /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE6B19AA24EECA43004F21FC /* Extensions.swift */; };
+		DE78C73527AA7E7B009E2DCB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE78C73427AA7E7B009E2DCB /* GoogleService-Info.plist */; };
 		DE7EA14F2508E0BD00B0DE4D /* NewConversationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE7EA14E2508E0BD00B0DE4D /* NewConversationCell.swift */; };
 		DE7EA1512508E4E600B0DE4D /* NewconversationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE7EA1502508E4E600B0DE4D /* NewconversationTableViewCell.swift */; };
 		DEB4CCFD24FE142C00818578 /* ConversationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB4CCFB24FE142C00818578 /* ConversationTableViewCell.swift */; };
-		DEBC605E25CBE22F00DCC847 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEBC605D25CBE22F00DCC847 /* GoogleService-Info.plist */; };
 		DEC7C4E824FAC02400E4F801 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC7C4E724FAC02400E4F801 /* ChatViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -59,10 +59,10 @@
 		DE492E8F25D25EA700680639 /* userListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = userListTableViewCell.swift; sourceTree = "<group>"; };
 		DE667F0A24F2113B00003847 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		DE6B19AA24EECA43004F21FC /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		DE78C73427AA7E7B009E2DCB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DE7EA14E2508E0BD00B0DE4D /* NewConversationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationCell.swift; sourceTree = "<group>"; };
 		DE7EA1502508E4E600B0DE4D /* NewconversationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewconversationTableViewCell.swift; sourceTree = "<group>"; };
 		DEB4CCFB24FE142C00818578 /* ConversationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTableViewCell.swift; sourceTree = "<group>"; };
-		DEBC605D25CBE22F00DCC847 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Resource/Message/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DEC7C4E724FAC02400E4F801 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -121,7 +121,7 @@
 				DE05204524EEC00A00AAD92B /* views */,
 				DE05204424EEBFFC00AAD92B /* controllers */,
 				DE05203E24EEBFF400AAD92B /* Info.plist */,
-				DEBC605D25CBE22F00DCC847 /* GoogleService-Info.plist */,
+				DE78C73427AA7E7B009E2DCB /* GoogleService-Info.plist */,
 			);
 			path = Messenger;
 			sourceTree = "<group>";
@@ -256,7 +256,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE05203D24EEBFF400AAD92B /* LaunchScreen.storyboard in Resources */,
-				DEBC605E25CBE22F00DCC847 /* GoogleService-Info.plist in Resources */,
+				DE78C73527AA7E7B009E2DCB /* GoogleService-Info.plist in Resources */,
 				DE05203A24EEBFF400AAD92B /* Assets.xcassets in Resources */,
 				DE05203824EEBFF300AAD92B /* Main.storyboard in Resources */,
 			);
